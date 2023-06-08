@@ -30,7 +30,8 @@ Function Invoke-WinShutdown {
     }
 
     $TempExcludeDCs = Compare-Object -ReferenceObject $Servers.AllServers -DifferenceObject $Servers.DCs
-    $Servers.NonDcFsServers = Compare-Object -ReferenceObject $TempExcludeDCs -DifferenceObject $Servers.FileServers
+    $TempExcludeFSs = Compare-Object -ReferenceObject $Servers.AllServers -DifferenceObject $Servers.FileServers
+    $Servers.NonDcFsServers = Compare-Object -ReferenceObject $TempExcludeDCs -DifferenceObject $TempExcludeFSs -ExcludeDifferent
 
     Return $Servers
 }
