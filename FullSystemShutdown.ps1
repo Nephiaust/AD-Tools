@@ -19,8 +19,8 @@ Function Invoke-WinShutdown {
         DCs = @()
     }
 
-    Foreach ($Server in ($ServerList | Where-Object -Property Name -Like "*DC0?" -or like "*RODC0?")) {
-        $Servers.DCs += $Server.name
+    Foreach ($Server in ($ServerList | Where-Object {$_.Name -like "*DC0?" -or $_.Name -like "*RODC0?"})) {
+        $Servers.DCs += $Server.DNSHostName
     }
 
     # Select servers in domains (excluding domain controllers, read-only domain controllers, and file servers)
