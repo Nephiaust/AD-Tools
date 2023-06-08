@@ -14,18 +14,26 @@ Function Invoke-WinShutdown {
 
     $Servers = @{
         AllServers = @()
-        NonCoreServers = @()
+        NonDcFsServers = @()
         FileServers = @()
         DCs = @()
     }
+
+    Foreach ($Server in $ServerList) {$Servers.AllServers += $Server.DNSHostName}
 
     Foreach ($Server in ($ServerList | Where-Object {$_.Name -like "*DC0?" -or $_.Name -like "*RODC0?"})) {
         $Servers.DCs += $Server.DNSHostName
     }
 
+    Foreach ($Server in ($ServerList | Where-Object {$_.Name -like "*FS0?"})) {
+        $Servers.FileServers += $Server.DNSHostName
+    }
+
+    Compare-Object -ReferenceObject $Servers.AllServers -DifferenceObject $Servers.DCs
+
     # Select servers in domains (excluding domain controllers, read-only domain controllers, and file servers)
-    $ExcludedServerNames = @("Domain Controller", "Read Only Domain Controller")
-<#     $Servers = foreach ($Domain in $Domains) {
+<#    $ExcludedServerNames = @("Domain Controller", "Read Only Domain Controller")
+     $Servers = foreach ($Domain in $Domains) {
         Get-ADComputer -Filter {
             OperatingSystem -like "*Server*" -and not ()
             
