@@ -29,15 +29,8 @@ Function Invoke-WinShutdown {
         $Servers.FileServers += $Server.DNSHostName
     }
 
-    Compare-Object -ReferenceObject $Servers.AllServers -DifferenceObject $Servers.DCs
+    $TempExcludeDCs = Compare-Object -ReferenceObject $Servers.AllServers -DifferenceObject $Servers.DCs
+    $Servers.NonDcFsServers = Compare-Object -ReferenceObject $TempExcludeDCs -DifferenceObject $Servers.FileServers
 
-    # Select servers in domains (excluding domain controllers, read-only domain controllers, and file servers)
-<#    $ExcludedServerNames = @("Domain Controller", "Read Only Domain Controller")
-     $Servers = foreach ($Domain in $Domains) {
-        Get-ADComputer -Filter {
-            OperatingSystem -like "*Server*" -and not ()
-            
-            Name -like "*fs??" -and Name.Length -ge 5 -and Name.Length -le 7 -and not (Name -like "*fs??") -and not (OperatingSystem -like "*Server*") -and not (OperatingSystem -like "*Windows*")
-        } -SearchBase "DC=$Domain,DC=example,DC=com"
-    } #>
+    Return $Servers
 }
